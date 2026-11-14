@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>myHR - Employees Directory</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #eef2f5; display: flex; height: 100vh; overflow: hidden; }
+
+        /* Top Header Brand Bar */
+        .top-header { position: fixed; top: 0; left: 0; right: 0; height: 50px; background: #004080; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .top-header .brand { font-size: 20px; font-weight: bold; letter-spacing: 0.5px; }
+        .top-header .sub-brand { font-size: 13px; opacity: 0.8; margin-left: 10px; }
+        .logout-btn { background: #d9534f; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; }
+        .logout-btn:hover { background: #c9302c; }
+
+        /* Sidebar Navigation */
+        .sidebar { width: 240px; background: #f8f9fa; border-right: 1px solid #ddd; padding-top: 70px; display: flex; flex-direction: column; overflow-y: auto; }
+        .sidebar-section-title { font-size: 11px; text-transform: uppercase; color: #6c757d; font-weight: bold; padding: 10px 15px 5px; letter-spacing: 0.5px; }
+        .sidebar a { padding: 10px 15px; color: #333; text-decoration: none; font-size: 14px; display: block; border-left: 4px solid transparent; transition: all 0.2s; }
+        .sidebar a:hover, .sidebar a.active { background: #e9ecef; color: #004080; border-left-color: #004080; font-weight: 600; }
+
+        /* Main Content Area */
+        .main-content { flex: 1; padding: 80px 30px 30px 30px; overflow-y: auto; }
+        .page-title { font-size: 22px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        
+        .card { background: white; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
+        h2 { color: #333; font-size: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        
+        form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; background: #f8f9fa; padding: 20px; border-radius: 6px; border: 1px solid #e9ecef; }
+        form input, form select { padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; width: 100%; background: white; }
+        
+        /* Form group alignment wrapper for Date Hired */
+        .form-group { display: flex; flex-direction: column; gap: 4px; width: 100%; justify-content: flex-end; }
+        .form-group label { font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .form-full { grid-column: span 2; }
+        
+        .form-actions { display: flex; gap: 10px; grid-column: span 2; }
+        form button { flex: 1; background-color: #004080; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px; }
+        form button:hover { background-color: #003366; }
+        .cancel-edit-btn { background-color: #6c757d !important; display: none; }
+
+        /* Search Bar */
+        .search-container { margin-bottom: 15px; }
+        .search-container input { width: 100%; padding: 10px 14px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; }
+
+        /* Directory List */
+        ul { list-style-type: none; padding: 0; }
+        li { background: white; margin-bottom: 8px; padding: 12px 16px; border-radius: 4px; border: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s; }
+        li:hover { background: #f8f9fa; }
+        .emp-info { display: flex; flex-direction: column; gap: 2px; }
+        .emp-name { font-weight: 600; color: #333; font-size: 14px; }
+        .emp-sub { font-size: 12px; color: #6c757d; }
+        
+        .action-group { display: flex; gap: 8px; align-items: center; }
+        span.location-badge { color: #004080; font-size: 11px; background: #cce5ff; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
+        span.dept-badge { color: #383d41; font-size: 11px; background: #e2e3e5; padding: 3px 8px; border-radius: 12px; }
+        
+        .edit-btn { background-color: #d1ecf1; color: #0c5460; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-weight: 600; font-size: 11px; }
+        .delete-btn { background-color: #f8d7da; color: #721c24; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-weight: 600; font-size: 11px; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 6px; width: 450px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .modal-content h2 { margin-bottom: 15px; border-bottom: 1px solid #dee2e6; padding-bottom: 8px; font-size: 16px; }
+        .modal-detail { margin-bottom: 8px; font-size: 13px; color: #333; }
+        .modal-detail strong { display: inline-block; width: 130px; color: #495057; }
+        .close-modal { background-color: #333; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: 600; margin-top: 15px; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Header -->
+    <header class="top-header">
+        <div style="display: flex; align-items: baseline;">
+            <span class="brand">myHR</span>
+            <span class="sub-brand">Wellness Group Portal</span>
+        </div>
+        <button id="logout-btn" class="logout-btn">Sign Out</button>
+    </header>
+
+    <!-- Left Sidebar -->
+    <nav class="sidebar">
+        <a href="dashboard.html">🏠 Dashboard</a>
+        
+        <div class="sidebar-section-title">HR Management</div>
+        <a href="employees.html" class="active">👥 Employees Directory</a>
+        <a href="hr-tasks.html">📝 HR Tasks</a>
+        <a href="#">📋 Attendance & Logs</a>
+
+        <div class="sidebar-section-title">Locations</div>
+        <a href="employees.html">R Wellness Hub</a>
+        <a href="employees.html">4 South Wellness Hub</a>
+        <a href="employees.html">R Lounge</a>
+        <a href="employees.html">Isadora</a>
+        <a href="employees.html">All/Office</a>
+
+        <div class="sidebar-section-title">System</div>
+        <a href="#">⚙️ Settings</a>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <h1 class="page-title">Employee Directory & Management</h1>
+
+        <div class="card">
+            <h2 id="form-title"><span>Add New Employee</span></h2>
+            <form id="add-employee-form">
+                <input type="hidden" id="employeeId" />
+                <input type="text" id="firstName" placeholder="First Name" required />
+                <input type="text" id="lastName" placeholder="Last Name" required />
+                <input type="email" id="email" placeholder="Email Address" required />
+                <input type="text" id="department" placeholder="Department (e.g., HR, Operations)" />
+                <input type="text" id="jobTitle" placeholder="Job Title (e.g., Manager)" />
+                
+                <select id="businessLocation" required>
+                    <option value="" disabled selected>Select Business Location</option>
+                    <option value="R Wellness Hub">R Wellness Hub</option>
+                    <option value="4 South Wellness Hub">4 South Wellness Hub</option>
+                    <option value="R Lounge">R Lounge</option>
+                    <option value="Isadora">Isadora</option>
+                    <option value="All/Office">All/Office</option>
+                </select>
+
+                <input type="text" id="phoneNumber" placeholder="Phone Number" />
+                <input type="text" id="emergencyContact" placeholder="Emergency Contact Name & Number" />
+                
+                <!-- Date Hired with clean aligned label -->
+                <div class="form-group">
+                    <label for="dateHired">Date Hired</label>
+                    <input type="date" id="dateHired" />
+                </div>
+                
+                <!-- Status selector aligned on the right -->
+                <div class="form-group">
+                    <label for="status">Employment Status</label>
+                    <select id="status">
+                        <option value="Active">Active</option>
+                        <option value="On Leave">On Leave</option>
+                        <option value="Terminated">Terminated</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" id="submit-btn">Save Employee</button>
+                    <button type="button" id="cancel-edit-btn" class="cancel-edit-btn">Cancel Edit</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Directory Records</h2>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="🔍 Search by name, department, or business location..." />
+            </div>
+            <ul id="employee-list">
+                <li>Loading employees...</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="employee-modal" class="modal">
+        <div class="modal-content">
+            <h2>Employee Details</h2>
+            <div class="modal-detail"><strong>Name:</strong> <span id="modal-name"></span></div>
+            <div class="modal-detail"><strong>Email:</strong> <span id="modal-email"></span></div>
+            <div class="modal-detail"><strong>Department:</strong> <span id="modal-dept"></span></div>
+            <div class="modal-detail"><strong>Job Title:</strong> <span id="modal-title"></span></div>
+            <div class="modal-detail"><strong>Business Location:</strong> <span id="modal-location"></span></div>
+            <div class="modal-detail"><strong>Phone Number:</strong> <span id="modal-phone"></span></div>
+            <div class="modal-detail"><strong>Emergency Contact:</strong> <span id="modal-emergency"></span></div>
+            <div class="modal-detail"><strong>Date Hired:</strong> <span id="modal-date"></span></div>
+            <div class="modal-detail"><strong>Status:</strong> <span id="modal-status"></span></div>
+            <button class="close-modal" id="close-modal-btn">Close</button>
+        </div>
+    </div>
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://pcopzbmkvctdlsbsbshf.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_AzmrbDrC6P2_FX_MU2iCKg_Yr2g3DK1';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let allEmployees = [];
+        let isEditing = false;
+
+        async function checkAuth() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = '/index.html';
+            }
+        }
+        checkAuth();
+
+        async function loadEmployees() {
+            try {
+                const response = await fetch('/api/employees');
+                allEmployees = await response.json();
+                renderEmployees(allEmployees);
+            } catch (error) {
+                console.error('Error loading employees:', error);
+            }
+        }
+
+        function renderEmployees(employees) {
+            const listElement = document.getElementById('employee-list');
+            listElement.innerHTML = '';
+
+            if (!employees || employees.length === 0) {
+                listElement.innerHTML = '<li>No employees found.</li>';
+                return;
+            }
+
+            employees.forEach(emp => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="emp-info">
+                        <span class="emp-name">${emp.first_name} ${emp.last_name}</span>
+                        <span class="emp-sub">${emp.job_title || 'Staff'} • ${emp.email || ''}</span>
+                    </div>
+                    <div class="action-group">
+                        <span class="location-badge">${emp.business_location || 'Unassigned'}</span>
+                        <span class="dept-badge">${emp.department || 'General'}</span>
+                        <button class="edit-btn" onclick="startEdit('${emp.id}', event)">Edit</button>
+                        <button class="delete-btn" onclick="deleteEmployee('${emp.id}', event)">Delete</button>
+                    </div>
+                `;
+                li.addEventListener('click', () => showEmployeeDetails(emp));
+                listElement.appendChild(li);
+            });
+        }
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allEmployees.filter(emp => {
+                const fullName = `${emp.first_name} ${emp.last_name}`.toLowerCase();
+                const dept = (emp.department || '').toLowerCase();
+                const location = (emp.business_location || '').toLowerCase();
+                const title = (emp.job_title || '').toLowerCase();
+                return fullName.includes(term) || dept.includes(term) || location.includes(term) || title.includes(term);
+            });
+            renderEmployees(filtered);
+        });
+
+        function startEdit(id, event) {
+            event.stopPropagation();
+            const emp = allEmployees.find(e => e.id == id);
+            if (!emp) return;
+
+            isEditing = true;
+            document.getElementById('employeeId').value = emp.id;
+            document.getElementById('firstName').value = emp.first_name || '';
+            document.getElementById('lastName').value = emp.last_name || '';
+            document.getElementById('email').value = emp.email || '';
+            document.getElementById('department').value = emp.department || '';
+            document.getElementById('jobTitle').value = emp.job_title || '';
+            document.getElementById('businessLocation').value = emp.business_location || '';
+            document.getElementById('phoneNumber').value = emp.phone_number || '';
+            document.getElementById('emergencyContact').value = emp.emergency_contact || '';
+            document.getElementById('dateHired').value = emp.date_hired ? emp.date_hired.split('T')[0] : '';
+            document.getElementById('status').value = emp.status || 'Active';
+
+            document.getElementById('form-title').innerHTML = `<span>Edit Employee: ${emp.first_name} ${emp.last_name}</span>`;
+            document.getElementById('submit-btn').innerText = 'Update Employee';
+            document.getElementById('cancel-edit-btn').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.getElementById('cancel-edit-btn').addEventListener('click', () => {
+            resetForm();
+        });
+
+        function resetForm() {
+            isEditing = false;
+            document.getElementById('add-employee-form').reset();
+            document.getElementById('employeeId').value = '';
+            document.getElementById('form-title').innerHTML = '<span>Add New Employee</span>';
+            document.getElementById('submit-btn').innerText = 'Save Employee';
+            document.getElementById('cancel-edit-btn').style.display = 'none';
+        }
+
+        async function deleteEmployee(id, event) {
+            event.stopPropagation();
+            if (!confirm('Are you sure you want to delete this employee?')) return;
+
+            const response = await fetch(`/api/employees/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                loadEmployees();
+            } else {
+                alert('Failed to delete employee');
+            }
+        }
+
+        function showEmployeeDetails(emp) {
+            document.getElementById('modal-name').innerText = `${emp.first_name} ${emp.last_name}`;
+            document.getElementById('modal-email').innerText = emp.email || 'N/A';
+            document.getElementById('modal-dept').innerText = emp.department || 'General';
+            document.getElementById('modal-title').innerText = emp.job_title || 'N/A';
+            document.getElementById('modal-location').innerText = emp.business_location || 'N/A';
+            document.getElementById('modal-phone').innerText = emp.phone_number || 'N/A';
+            document.getElementById('modal-emergency').innerText = emp.emergency_contact || 'N/A';
+            document.getElementById('modal-date').innerText = emp.date_hired ? new Date(emp.date_hired).toLocaleDateString() : 'N/A';
+            document.getElementById('modal-status').innerText = emp.status || 'Active';
+            
+            document.getElementById('employee-modal').style.display = 'flex';
+        }
+
+        document.getElementById('close-modal-btn').addEventListener('click', () => {
+            document.getElementById('employee-modal').style.display = 'none';
+        });
+
+        document.getElementById('add-employee-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const employeeData = {
+                first_name: document.getElementById('firstName').value,
+                last_name: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                department: document.getElementById('department').value,
+                job_title: document.getElementById('jobTitle').value,
+                business_location: document.getElementById('businessLocation').value,
+                phone_number: document.getElementById('phoneNumber').value,
+                emergency_contact: document.getElementById('emergencyContact').value,
+                date_hired: document.getElementById('dateHired').value || null,
+                status: document.getElementById('status').value
+            };
+
+            let response;
+            if (isEditing) {
+                const id = document.getElementById('employeeId').value;
+                response = await fetch(`/api/employees/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(employeeData)
+                });
+            } else {
+                response = await fetch('/api/employees', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(employeeData)
+                });
+            }
+
+            if (response.ok) {
+                resetForm();
+                loadEmployees();
+            } else {
+                const errData = await response.json();
+                alert('Failed to save employee: ' + (errData.error || 'Unknown error'));
+            }
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabaseClient.auth.signOut();
+            window.location.href = '/index.html';
+        });
+
+        loadEmployees();
+    </script>
+</body>
+</html>

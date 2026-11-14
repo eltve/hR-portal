@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>myHR - Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #eef2f5; display: flex; height: 100vh; overflow: hidden; }
+
+        /* Top Header Brand Bar */
+        .top-header { position: fixed; top: 0; left: 0; right: 0; height: 50px; background: #004080; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .top-header .brand { font-size: 20px; font-weight: bold; letter-spacing: 0.5px; }
+        .top-header .sub-brand { font-size: 13px; opacity: 0.8; margin-left: 10px; }
+        .logout-btn { background: #d9534f; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; }
+        .logout-btn:hover { background: #c9302c; }
+
+        /* Sidebar Navigation */
+        .sidebar { width: 240px; background: #f8f9fa; border-right: 1px solid #ddd; padding-top: 70px; display: flex; flex-direction: column; overflow-y: auto; }
+        .sidebar-section-title { font-size: 11px; text-transform: uppercase; color: #6c757d; font-weight: bold; padding: 10px 15px 5px; letter-spacing: 0.5px; }
+        .sidebar a { padding: 10px 15px; color: #333; text-decoration: none; font-size: 14px; display: block; border-left: 4px solid transparent; transition: all 0.2s; }
+        .sidebar a:hover, .sidebar a.active { background: #e9ecef; color: #004080; border-left-color: #004080; font-weight: 600; }
+
+        /* Main Content Area */
+        .main-content { flex: 1; padding: 80px 30px 30px 30px; overflow-y: auto; }
+        .page-title { font-size: 22px; color: #333; margin-bottom: 5px; font-weight: 600; }
+        .page-subtitle { font-size: 13px; color: #6c757d; margin-bottom: 25px; }
+
+        /* Stats Grid Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 18px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-top: 4px solid #004080; }
+        .stat-card h3 { font-size: 12px; color: #6c757d; text-transform: uppercase; margin-bottom: 6px; }
+        .stat-card .number { font-size: 26px; font-weight: bold; color: #333; }
+
+        /* Location breakdown table card */
+        .card { background: white; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
+        .card h2 { font-size: 16px; color: #333; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #dee2e6; }
+        th { background: #f8f9fa; color: #495057; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Header -->
+    <header class="top-header">
+        <div style="display: flex; align-items: baseline;">
+            <span class="brand">myHR</span>
+            <span class="sub-brand">Wellness Group Portal</span>
+        </div>
+        <button id="logout-btn" class="logout-btn">Sign Out</button>
+    </header>
+
+    <!-- Left Sidebar -->
+    <nav class="sidebar">
+        <a href="dashboard.html" class="active">🏠 Dashboard</a>
+        
+        <div class="sidebar-section-title">HR Management</div>
+        <a href="employees.html">👥 Employees Directory</a>
+        <a href="hr-tasks.html">📝 HR Tasks</a>
+        <a href="#">📋 Attendance & Logs</a>
+
+        <div class="sidebar-section-title">Locations</div>
+        <a href="employees.html">R Wellness Hub</a>
+        <a href="employees.html">4 South Wellness Hub</a>
+        <a href="employees.html">R Lounge</a>
+        <a href="employees.html">Isadora</a>
+        <a href="employees.html">All/Office</a>
+
+        <div class="sidebar-section-title">System</div>
+        <a href="#">⚙️ Settings</a>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <h1 class="page-title">Dashboard</h1>
+        <div class="page-subtitle">Statistics and analytics overview across all business locations</div>
+
+        <!-- Quick Summary Cards -->
+        <div class="stats-grid">
+            <div class="stat-card" style="border-top-color: #004080;">
+                <h3>Total Employees</h3>
+                <div class="number" id="stat-total">0</div>
+            </div>
+            <div class="stat-card" style="border-top-color: #28a745;">
+                <h3>R Wellness Hub</h3>
+                <div class="number" id="stat-rwellness">0</div>
+            </div>
+            <div class="stat-card" style="border-top-color: #ffc107;">
+                <h3>4 South Hub</h3>
+                <div class="number" id="stat-4south">0</div>
+            </div>
+            <div class="stat-card" style="border-top-color: #17a2b8;">
+                <h3>R Lounge</h3>
+                <div class="number" id="stat-rlounge">0</div>
+            </div>
+            <div class="stat-card" style="border-top-color: #e83e8c;">
+                <h3>Isadora</h3>
+                <div class="number" id="stat-isadora">0</div>
+            </div>
+            <div class="stat-card" style="border-top-color: #6c757d;">
+                <h3>All/Office</h3>
+                <div class="number" id="stat-office">0</div>
+            </div>
+        </div>
+
+        <!-- Location Breakdown Table -->
+        <div class="card">
+            <h2>Business Location Distribution</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Business Location</th>
+                        <th>Active Personnel</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="location-table-body">
+                    <tr><td colspan="3">Loading data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://pcopzbmkvctdlsbsbshf.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_AzmrbDrC6P2_FX_MU2iCKg_Yr2g3DK1';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function checkAuth() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = '/index.html';
+            }
+        }
+        checkAuth();
+
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch('/api/employees');
+                const employees = await response.json();
+
+                const total = employees.length;
+                let counts = {
+                    'R Wellness Hub': 0,
+                    '4 South Wellness Hub': 0,
+                    'R Lounge': 0,
+                    'Isadora': 0,
+                    'All/Office': 0
+                };
+
+                employees.forEach(emp => {
+                    const loc = emp.business_location;
+                    if (counts.hasOwnProperty(loc)) {
+                        counts[loc]++;
+                    }
+                });
+
+                // Update cards
+                document.getElementById('stat-total').innerText = total;
+                document.getElementById('stat-rwellness').innerText = counts['R Wellness Hub'];
+                document.getElementById('stat-4south').innerText = counts['4 South Wellness Hub'];
+                document.getElementById('stat-rlounge').innerText = counts['R Lounge'];
+                document.getElementById('stat-isadora').innerText = counts['Isadora'];
+                document.getElementById('stat-office').innerText = counts['All/Office'];
+
+                // Update table
+                const tableBody = document.getElementById('location-table-body');
+                tableBody.innerHTML = `
+                    <tr><td><strong>R Wellness Hub</strong></td><td>${counts['R Wellness Hub']} employees</td><td><span style="color:green; font-weight:600;">● Active</span></td></tr>
+                    <tr><td><strong>4 South Wellness Hub</strong></td><td>${counts['4 South Wellness Hub']} employees</td><td><span style="color:green; font-weight:600;">● Active</span></td></tr>
+                    <tr><td><strong>R Lounge</strong></td><td>${counts['R Lounge']} employees</td><td><span style="color:green; font-weight:600;">● Active</span></td></tr>
+                    <tr><td><strong>Isadora</strong></td><td>${counts['Isadora']} employees</td><td><span style="color:green; font-weight:600;">● Active</span></td></tr>
+                    <tr><td><strong>All/Office</strong></td><td>${counts['All/Office']} employees</td><td><span style="color:green; font-weight:600;">● Active</span></td></tr>
+                `;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabaseClient.auth.signOut();
+            window.location.href = '/index.html';
+        });
+
+        loadDashboardStats();
+    </script>
+</body>
+</html>
