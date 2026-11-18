@@ -181,9 +181,9 @@
                     <select id="quick-preset-select" onchange="applyPresetFromDropdown(this.value)" class="bg-slate-900/90 border border-slate-700/80 text-slate-200 text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 cursor-pointer">
                         <option value="custom" selected>✨ Current Custom Setup</option>
                         <option value="party">🎉 IceBreaker (3 Wheels)</option>
-                        <option value="dinner">🍕 Dinner & Date Night (3 Wheels)</option>
-                        <option value="workout">💪 HIIT Workout Generator (4 Wheels)</option>
-                        <option value="story">🚀 Sci-Fi Prompt Maker (4 Wheels)</option>
+                        <option value="dinner">🍕 Softcore (3 Wheels)</option>
+                        <option value="workout">💪 Hardcore (4 Wheels)</option>
+                        <option value="story">🚀 Ice + Soft (4 Wheels)</option>
                         <option value="numbers">🎲 Lucky Numbers 1-10 (3 Wheels)</option>
                     </select>
                     <button onclick="switchTab('settings')" class="text-xs font-medium text-indigo-400 hover:text-indigo-300 px-3 py-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 hover:bg-indigo-500/20 transition-colors">
@@ -340,36 +340,36 @@
                 count: 3,
                 wheels: [
                     { title: 'Action', theme: 'vibrant', items: ['Kiss', 'Touch', 'Lick'] },
-                    { title: 'Target', theme: 'cyber', items: ['Yourself', 'Person on Left', 'Person on Right', 'Everyone!', 'Group Choice', 'Opposite Player'] },
-                    { title: 'Modifier', theme: 'sunset', items: ['Cheek', 'Neck', 'Back', 'Thighs', 'Chest/Boobs'] },
-                    { title: 'Bonus', theme: 'pastel', items: ['Safe Pass', '+1 Spin', 'Pick Next', 'Swap Seats', '2x Dare', 'Free Sip'] }
+                    { title: 'Body Part', theme: 'sunset', items: ['Cheek', 'Lips', 'Neck', 'Back', 'Stomach/Abs', 'Thighs', 'Butt', 'Chest/Boobs'] },
+                    { title: 'Target', theme: 'cyber', items: ['Person on Left', 'Person on Right', 'Group Choice', 'Opposite Player'] },
+                    { title: 'Joiner', theme: 'sunset', items: ['1', '2', '3', '4', '5', '6'] }
                 ]
             },
             dinner: {
                 count: 3,
                 wheels: [
-                    { title: 'Cuisine', theme: 'vibrant', items: ['Japanese Sushi', 'Wood-Fired Pizza', 'Mexican Tacos', 'Thai Curry', 'Juicy Burgers', 'Korean BBQ', 'Italian Pasta'] },
-                    { title: 'Vibe', theme: 'pastel', items: ['Cozy Takeout', 'Dine-In Treat', 'Street Food', 'Cook Together', 'Picnic Style', 'Fast Casual'] },
-                    { title: 'Dessert / Drink', theme: 'cyber', items: ['Boba Milk Tea', 'Gelato / Ice Cream', 'Iced Matcha', 'Churros', 'Cheesecake', 'Skip Dessert'] },
-                    { title: 'Who Pays?', theme: 'sunset', items: ['Split 50/50', 'Rock Paper Scissors', 'Spinner Treats!', 'Flip a Coin', 'Oldest Pays', 'Youngest Pays'] }
+                    { title: 'Action', theme: 'vibrant', items: ['Take one off', 'Sit on Lap (until next spin)', 'Hug Facing Each Other (until next spin)', 'Body Shot (neck or navel)', 'Kiss inner thighs', 'Massage Chest/Boobs'] },
+                    { title: 'Target', theme: 'pastel', items: ['Person on Left', 'Person on Right', 'Group Choice', 'Opposite Player'] },
+                    { title: 'Target by Num', theme: 'sunset', items: ['1', '2', '3', '4', '5', '6'] },
+                    { title: 'Joiner', theme: 'sunset', items: ['1', '2', '3', '4', '5', '6'] }
                 ]
             },
             workout: {
                 count: 4,
                 wheels: [
-                    { title: 'Exercise', theme: 'cyber', items: ['Push-Ups', 'Air Squats', 'Burpees', 'Mountain Climbers', 'Jumping Jacks', 'Lunges', 'Plank Hold'] },
-                    { title: 'Reps / Time', theme: 'vibrant', items: ['10 Reps', '15 Reps', '20 Reps', '30 Seconds', '45 Seconds', '12 Reps'] },
-                    { title: 'Tempo', theme: 'sunset', items: ['Explosive', 'Slow & Controlled', '2-Sec Pause', 'Standard Pace', 'Pulse Reps'] },
-                    { title: 'Rest After', theme: 'pastel', items: ['15s Rest', '30s Rest', '45s Rest', 'No Rest! Superset', '1 Min Water'] }
+                    { title: 'Action', theme: 'vibrant', items: ['French Kiss', 'Touch/Feel Privates', 'Eat Pussy', 'Get/Give BJ'] },
+                    { title: 'Target', theme: 'pastel', items: ['Person on Left', 'Person on Right', 'Group Choice', 'Opposite Player'] },
+                    { title: 'Target by Num', theme: 'sunset', items: ['1', '2', '3', '4', '5', '6'] },
+                    { title: 'Duration', theme: 'sunset', items: ['10 seconds', '15 seconds', '30 seconds', 'Until next turn'] }
                 ]
             },
             story: {
                 count: 4,
                 wheels: [
-                    { title: 'Hero', theme: 'cyber', items: ['Rogue Android', 'Time-Lost Knight', 'Space Smuggler', 'Cyber Detective', 'Sleepy Wizard', 'Alchemist'] },
-                    { title: 'Setting', theme: 'vibrant', items: ['Neon Megacity', 'Sunken Ruins', 'Orbital Station', 'Floating Archipelago', 'Haunted Train', 'Desert Oasis'] },
-                    { title: 'Conflict', theme: 'sunset', items: ['Stolen Relic', 'Looping Tuesday', 'AI Uprising', 'Vanishing Stars', 'Cursed Compass'] },
-                    { title: 'Twist', theme: 'pastel', items: ['Villain is Future Self', 'All a Simulation', 'Pet is the Mastermind', 'Gravity Reverses', 'Magic Costs Memories'] }
+                    { title: 'Action', theme: 'vibrant', items: ['Take one off', 'Sit on Lap (until next spin)', 'Hug Facing Each Other (until next spin)', 'Body Shot (neck or navel)', 'Kiss inner thighs', 'Massage Chest/Boobs'] },
+                    { title: 'Target by Num', theme: 'sunset', items: ['1', '2', '3', '4', '5', '6'] },
+                    { title: 'Action', theme: 'vibrant', items: ['Kiss', 'Touch', 'Lick'] },
+                    { title: 'Body Part', theme: 'sunset', items: ['Cheek', 'Lips', 'Neck', 'Back', 'Stomach/Abs', 'Thighs', 'Butt', 'Chest/Boobs'] },
                 ]
             },
             numbers: {
