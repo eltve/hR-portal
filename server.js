@@ -197,6 +197,55 @@ app.delete('/api/tasks/:id', async (req, res) => {
 });
 
 
+// GET all IT tasks
+app.get('/api/it-tasks', async (req, res) => {
+  const { data, error } = await supabase
+    .from('it_tasks')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// POST create a new IT task
+app.post('/api/it-tasks', async (req, res) => {
+  const { data, error } = await supabase
+    .from('it_tasks')
+    .insert([req.body])
+    .select();
+
+  if (error) return res.status(400).json({ error: error.message });
+  res.status(201).json(data[0]);
+});
+
+// PUT update an existing IT task
+app.put('/api/it-tasks/:id', async (req, res) => {
+  const { id } = req.params;
+  const { data, error } = await supabase
+    .from('it_tasks')
+    .update(req.body)
+    .eq('id', id)
+    .select();
+
+  if (error) return res.status(400).json({ error: error.message });
+  res.json(data[0]);
+});
+
+// DELETE an IT task
+app.delete('/api/it-tasks/:id', async (req, res) => {
+  const { id } = req.params;
+  const { error } = await supabase
+    .from('it_tasks')
+    .delete()
+    .eq('id', id);
+
+  if (error) return res.status(400).json({ error: error.message });
+  res.json({ success: true });
+});
+
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
