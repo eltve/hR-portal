@@ -24,17 +24,17 @@
         .page-title { font-size: 22px; color: #333; margin-bottom: 20px; font-weight: 600; }
 
         .card { background: white; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
-        
+
         /* 4-Column Grid for Task Form */
         form.task-form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 10px; background: #f8f9fa; padding: 20px; border-radius: 6px; border: 1px solid #e9ecef; align-items: flex-end; }
         form.task-form input, form.task-form select, form.task-form textarea { padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; width: 100%; background: white; }
-        
+
         .form-group { display: flex; flex-direction: column; gap: 4px; width: 100%; }
         .form-group label { font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        form.task-form textarea { grid-column: span 4; resize: none; height: 80px; }
+        form.task-form textarea { resize: none; height: 80px; }
         .form-full { grid-column: span 4; }
-        
+
         .form-actions { display: flex; gap: 10px; grid-column: span 4; justify-content: flex-start; margin-top: 5px; }
         form.task-form button { background-color: #004080; color: white; border: none; padding: 10px 24px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; }
         form.task-form button:hover { background-color: #003366; }
@@ -47,16 +47,23 @@
 
         /* Task Table Styles */
         .table-responsive { overflow-x: auto; }
-        .task-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1000px; }
+        .task-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 960px; }
         .task-table th, .task-table td { text-align: left; padding: 12px 10px; border-bottom: 1px solid #dee2e6; }
         .task-table th { background: #f8f9fa; color: #495057; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
-        
-        /* Deadline Highlight Rules */
-        .row-nearing { background-color: #fff9db !important; } /* Yellow for < 3 days */
-        .row-overdue { background-color: #ffe3e3 !important; } /* Red for past deadline */
-        .task-table tr:hover { opacity: 0.9; }
 
-        .status-badge { padding: 4px 8px; border-radius: 12px; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+        /* Sortable Headers */
+        .task-table th.sortable { cursor: pointer; user-select: none; transition: background-color 0.2s, color 0.2s; }
+        .task-table th.sortable:hover { background: #e9ecef; color: #004080; }
+        .sort-indicator { margin-left: 6px; font-size: 10px; color: #adb5bd; }
+        .task-table th.sorted-asc .sort-indicator,
+        .task-table th.sorted-desc .sort-indicator { color: #004080; }
+
+        /* Deadline Highlight Rules */
+        .row-nearing { background-color: #fff9db !important; }
+        .row-overdue { background-color: #ffe3e3 !important; }
+        .task-table tr:hover { opacity: 0.92; }
+
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-weight: 600; font-size: 11px; text-transform: uppercase; display: inline-block; }
         .status-active { background-color: #cce5ff; color: #004080; }
         .status-pending { background-color: #fff3cd; color: #856404; }
         .status-completed { background-color: #d4edda; color: #155724; }
@@ -71,7 +78,7 @@
     <!-- Top Navigation Header -->
     <header class="top-header">
         <div style="display: flex; align-items: baseline;">
-            <span class="brand">myHR</span>
+            <span class="brand">Task Management</span>
             <span class="sub-brand">Wellness Group Portal</span>
         </div>
         <button id="logout-btn" class="logout-btn">Sign Out</button>
@@ -80,34 +87,37 @@
     <!-- Left Sidebar -->
     <nav class="sidebar">
         <a href="dashboard.html">🏠 Dashboard</a>
-        
+
         <div class="sidebar-section-title">HR Management</div>
         <a href="employees.html">👥 Employees Directory</a>
         <a href="hr-tasks.html" class="active">📝 HR Tasks</a>
         <a href="it-tasks.html">💻 IT Tasks</a>
-        <a href="#">📋 Attendance & Logs</a>
+        <!-- <a href="#">📋 Attendance & Logs</a> -->
 
+        <!--
         <div class="sidebar-section-title">Locations</div>
         <a href="employees.html">R Wellness Hub</a>
         <a href="employees.html">4 South Wellness Hub</a>
         <a href="employees.html">R Lounge</a>
         <a href="employees.html">Isadora</a>
         <a href="employees.html">All/Office</a>
+        -->
 
         <div class="sidebar-section-title">System</div>
-        <a href="#">⚙️ Settings</a>
+        <a href="#">⚙️ Settings</a>     
     </nav>
 
     <!-- Main Content Area -->
     <main class="main-content">
         <h1 class="page-title">HR Task Management</h1>
 
-        <!-- Add/Edit Task Form Card -->
+        <!-- Add/Edit HR Task Form Card -->
         <div class="card">
-            <h2 id="form-title" style="font-size: 16px; margin-bottom: 12px; color:#333;">Add New Task</h2>
+            <h2 id="form-title" style="font-size: 16px; margin-bottom: 12px; color:#333;">Add New HR Task</h2>
             <form id="task-form" class="task-form">
                 <input type="hidden" id="taskId" />
-                
+
+                <!-- Row 1 -->
                 <div class="form-group">
                     <label for="businessLocation">Business Location</label>
                     <select id="businessLocation" required>
@@ -121,35 +131,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="taskCategory">Task Category</label>
-                    <select id="taskCategory" required>
-                        <option value="" disabled selected>Select Category</option>
-                        <option value="Recruitment">Recruitment</option>
-                        <option value="Training">Training</option>
-                        <option value="Comp&Ben">Compensation & Benefits</option>
-                        <option value="Performance Management">Performance Management</option>
-                        <option value="Employee Relations">Employee Relations</option>
-                        <option value="Compliance">Compliance</option>
-                        <option value="Safety">Safety</option>
-                        <option value="Records">Records</option>
-                    </select>
+                    <label for="taskCategory">Category</label>
+                    <input type="text" id="taskCategory" placeholder="e.g., Onboarding, Payroll, Policy" required />
                 </div>
 
                 <div class="form-group">
                     <label for="assignedTo">Assigned To</label>
-                    <input type="text" id="assignedTo" placeholder="Employee Name" />
-                </div>
-
-                <div></div>
-
-                <div class="form-group">
-                    <label for="startDate">Start Date</label>
-                    <input type="date" id="startDate" />
-                </div>
-
-                <div class="form-group">
-                    <label for="deadline">End Date / Deadline</label>
-                    <input type="date" id="deadline" />
+                    <input type="text" id="assignedTo" placeholder="Assignee Name" />
                 </div>
 
                 <div class="form-group">
@@ -161,13 +149,27 @@
                     </select>
                 </div>
 
-                <div></div>
-
-                <div class="form-group form-full">
-                    <label for="taskDetails">Task Details</label>
-                    <textarea id="taskDetails" placeholder="Task Details (e.g., job title for recruitment, training module name)" required></textarea>
+                <!-- Row 2 -->
+                <div class="form-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate" />
                 </div>
 
+                <div class="form-group">
+                    <label for="deadline">End Date / Deadline</label>
+                    <input type="date" id="deadline" />
+                </div>
+
+                <div></div>
+                <div></div>
+
+                <!-- Row 3: Task Details Full Width -->
+                <div class="form-group form-full">
+                    <label for="taskDetails">Task Details</label>
+                    <textarea id="taskDetails" placeholder="Describe the HR task..." required></textarea>
+                </div>
+
+                <!-- Row 4: Buttons Below Task Details -->
                 <div class="form-actions">
                     <button type="submit" id="submit-btn">Save Task</button>
                     <button type="button" id="cancel-edit-btn" class="cancel-edit-btn">Cancel</button>
@@ -175,28 +177,28 @@
             </form>
         </div>
 
-        <!-- Task Table Card -->
+        <!-- HR Task Table Card -->
         <div class="card">
-            <h2 style="font-size: 16px; margin-bottom: 15px; color:#333;">Task Registry</h2>
+            <h2 style="font-size: 16px; margin-bottom: 15px; color:#333;">HR Task Registry</h2>
             <div class="search-container">
-                <input type="text" id="search-input" placeholder="🔍 Search tasks by location, category, details, assignee, or status..." />
+                <input type="text" id="search-input" placeholder="🔍 Search by location, category, details, assignee, or status..." />
             </div>
             <div class="table-responsive">
                 <table class="task-table" id="task-table">
                     <thead>
                         <tr>
-                            <th>Location</th>
-                            <th>Category</th>
-                            <th>Details</th>
-                            <th>Assigned</th>
-                            <th>Start</th>
-                            <th>Deadline</th>
-                            <th>Status</th>
+                            <th class="sortable" data-sort="business_location">Location <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="task_category">Category <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="task_details">Details <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="assigned_to">Assigned <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="start_date">Start <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="deadline">Deadline <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="status">Status <span class="sort-indicator">⇅</span></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="task-table-body">
-                        <tr><td colspan="8">Loading tasks...</td></tr>
+                        <tr><td colspan="8">Loading HR tasks...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -212,6 +214,10 @@
 
         let allTasks = [];
         let isEditing = false;
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc';
+
+        const DATE_COLUMNS = new Set(['start_date', 'deadline']);
 
         async function checkAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -225,11 +231,118 @@
             try {
                 const response = await fetch('/api/tasks');
                 allTasks = await response.json();
-                renderTasks(allTasks);
+                renderTasks(getFilteredAndSortedTasks());
             } catch (error) {
-                console.error('Error loading tasks:', error);
+                console.error('Error loading HR tasks:', error);
             }
         }
+
+        function formatDateForDisplay(dateVal) {
+            if (!dateVal) return 'N/A';
+            const parts = String(dateVal).split('T')[0].split('-');
+            if (parts.length === 3) {
+                const localDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                return localDate.toLocaleDateString();
+            }
+            return new Date(dateVal).toLocaleDateString();
+        }
+
+        function parseDateValue(val) {
+            if (!val) return null;
+            const datePart = String(val).split('T')[0];
+            const parts = datePart.split('-');
+            if (parts.length === 3) {
+                return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])).getTime();
+            }
+            const parsed = new Date(val).getTime();
+            return Number.isNaN(parsed) ? null : parsed;
+        }
+
+        function compareTasks(a, b, key, direction) {
+            const multiplier = direction === 'asc' ? 1 : -1;
+
+            if (DATE_COLUMNS.has(key)) {
+                const timeA = parseDateValue(a[key]);
+                const timeB = parseDateValue(b[key]);
+
+                if (timeA === null && timeB === null) return 0;
+                if (timeA === null) return 1;
+                if (timeB === null) return -1;
+
+                return (timeA - timeB) * multiplier;
+            }
+
+            const strA = String(a[key] ?? '').trim().toLowerCase();
+            const strB = String(b[key] ?? '').trim().toLowerCase();
+
+            if (!strA && !strB) return 0;
+            if (!strA) return 1;
+            if (!strB) return -1;
+
+            return strA.localeCompare(strB, undefined, { sensitivity: 'base' }) * multiplier;
+        }
+
+        function getFilteredAndSortedTasks() {
+            const term = document.getElementById('search-input').value.toLowerCase().trim();
+
+            let result = allTasks.filter(task => {
+                if (!term) return true;
+                const loc = (task.business_location || '').toLowerCase();
+                const cat = (task.task_category || '').toLowerCase();
+                const details = (task.task_details || '').toLowerCase();
+                const assigned = (task.assigned_to || '').toLowerCase();
+                const status = (task.status || '').toLowerCase();
+
+                return (
+                    loc.includes(term) ||
+                    cat.includes(term) ||
+                    details.includes(term) ||
+                    assigned.includes(term) ||
+                    status.includes(term)
+                );
+            });
+
+            if (currentSortColumn) {
+                result = [...result].sort((a, b) => compareTasks(a, b, currentSortColumn, currentSortDirection));
+            }
+
+            return result;
+        }
+
+        function updateSortHeaders() {
+            document.querySelectorAll('#task-table th.sortable').forEach(th => {
+                const col = th.getAttribute('data-sort');
+                const indicator = th.querySelector('.sort-indicator');
+                th.classList.remove('sorted-asc', 'sorted-desc');
+
+                if (col === currentSortColumn) {
+                    th.classList.add(currentSortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
+                    if (indicator) {
+                        indicator.textContent = currentSortDirection === 'asc' ? '▲' : '▼';
+                    }
+                } else if (indicator) {
+                    indicator.textContent = '⇅';
+                }
+            });
+        }
+
+        document.querySelectorAll('#task-table th.sortable').forEach(th => {
+            th.addEventListener('click', () => {
+                const col = th.getAttribute('data-sort');
+                if (currentSortColumn === col) {
+                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSortColumn = col;
+                    currentSortDirection = 'asc';
+                }
+                updateSortHeaders();
+                renderTasks(getFilteredAndSortedTasks());
+            });
+        });
+
+        document.getElementById('search-input').addEventListener('input', () => {
+            renderTasks(getFilteredAndSortedTasks());
+        });
 
         function renderTasks(tasks) {
             const tableBody = document.getElementById('task-table-body');
@@ -240,27 +353,28 @@
                 return;
             }
 
-            const today = newryptoDate = new Date();
+            const today = new Date();
             today.setHours(0, 0, 0, 0);
 
             tasks.forEach(task => {
                 const tr = document.createElement('tr');
-                
-                const startDateStr = task.start_date ? new Date(task.start_date).toLocaleDateString() : 'N/A';
-                const deadlineStr = task.deadline ? new Date(task.deadline).toLocaleDateString() : 'N/A';
-                
-                // Calculate deadline highlighting if task is not completed
+
+                const startDateStr = formatDateForDisplay(task.start_date);
+                const deadlineStr = formatDateForDisplay(task.deadline);
+
                 if (task.deadline && task.status !== 'Completed') {
-                    const deadlineDate = new Date(task.deadline);
+                    const parts = String(task.deadline).split('T')[0].split('-');
+                    const deadlineDate = parts.length === 3
+                        ? new Date(parts[0], parts[1] - 1, parts[2])
+                        : new Date(task.deadline);
                     deadlineDate.setHours(0, 0, 0, 0);
-                    
-                    const diffTime = deadlineDate - today;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    const diffDays = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
 
                     if (diffDays < 0) {
-                        tr.classList.add('row-overdue'); // Past deadline -> Red background
+                        tr.classList.add('row-overdue');
                     } else if (diffDays <= 3) {
-                        tr.classList.add('row-nearing'); // Nearing deadline (<3 days) -> Yellow background
+                        tr.classList.add('row-nearing');
                     }
                 }
 
@@ -284,21 +398,6 @@
                 tableBody.appendChild(tr);
             });
         }
-
-        // Search Filter Listener
-        document.getElementById('search-input').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtered = allTasks.filter(task => {
-                const loc = (task.business_location || '').toLowerCase();
-                const cat = (task.task_category || '').toLowerCase();
-                const details = (task.task_details || '').toLowerCase();
-                const assigned = (task.assigned_to || '').toLowerCase();
-                const status = (task.status || '').toLowerCase();
-
-                return loc.includes(term) || cat.includes(term) || details.includes(term) || assigned.includes(term) || status.includes(term);
-            });
-            renderTasks(filtered);
-        });
 
         document.getElementById('task-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -334,7 +433,7 @@
                 loadTasks();
             } else {
                 const errData = await response.json();
-                alert('Failed to save task: ' + (errData.error || 'Unknown error'));
+                alert('Failed to save HR task: ' + (errData.error || 'Unknown error'));
             }
         });
 
@@ -348,11 +447,11 @@
             document.getElementById('taskCategory').value = task.task_category;
             document.getElementById('taskDetails').value = task.task_details;
             document.getElementById('assignedTo').value = task.assigned_to || '';
-            document.getElementById('startDate').value = task.start_date ? task.start_date.split('T')[0] : '';
-            document.getElementById('deadline').value = task.deadline ? task.deadline.split('T')[0] : '';
+            document.getElementById('startDate').value = task.start_date ? String(task.start_date).split('T')[0] : '';
+            document.getElementById('deadline').value = task.deadline ? String(task.deadline).split('T')[0] : '';
             document.getElementById('taskStatus').value = task.status || 'Pending';
 
-            document.getElementById('form-title').innerText = 'Edit Task';
+            document.getElementById('form-title').innerText = 'Edit HR Task';
             document.getElementById('submit-btn').innerText = 'Update Task';
             document.getElementById('cancel-edit-btn').style.display = 'block';
 
@@ -360,13 +459,13 @@
         }
 
         async function deleteTask(id) {
-            if (!confirm('Are you sure you want to delete this task?')) return;
+            if (!confirm('Are you sure you want to delete this HR task?')) return;
 
             const response = await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
             if (response.ok) {
                 loadTasks();
             } else {
-                alert('Failed to delete task');
+                alert('Failed to delete HR task');
             }
         }
 
@@ -374,7 +473,7 @@
             isEditing = false;
             document.getElementById('task-form').reset();
             document.getElementById('taskId').value = '';
-            document.getElementById('form-title').innerText = 'Add New Task';
+            document.getElementById('form-title').innerText = 'Add New HR Task';
             document.getElementById('submit-btn').innerText = 'Save Task';
             document.getElementById('cancel-edit-btn').style.display = 'none';
         }
