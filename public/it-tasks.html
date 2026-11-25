@@ -51,6 +51,13 @@
         .task-table th, .task-table td { text-align: left; padding: 12px 10px; border-bottom: 1px solid #dee2e6; }
         .task-table th { background: #f8f9fa; color: #495057; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
 
+        /* Sortable Headers */
+        .task-table th.sortable { cursor: pointer; user-select: none; transition: background-color 0.2s, color 0.2s; }
+        .task-table th.sortable:hover { background: #e9ecef; color: #004080; }
+        .sort-indicator { margin-left: 6px; font-size: 10px; color: #adb5bd; }
+        .task-table th.sorted-asc .sort-indicator,
+        .task-table th.sorted-desc .sort-indicator { color: #004080; }
+
         /* Deadline Highlight Rules */
         .row-nearing { background-color: #fff9db !important; }
         .row-overdue { background-color: #ffe3e3 !important; }
@@ -211,16 +218,16 @@
                 <table class="task-table" id="task-table">
                     <thead>
                         <tr>
-                            <th>Location</th>
-                            <th>Category</th>
-                            <th>Details</th>
-                            <th>Assigned To</th>
-                            <th>Start Date</th>
-                            <th>Deadline</th>
-                            <th>Status</th>
-                            <th>Charge Fee</th>
-                            <th>Payment Status</th>
-                            <th>Payment Date</th>
+                            <th class="sortable" data-sort="business_location">Location <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="task_category">Category <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="task_details">Details <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="assigned_to">Assigned To <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="start_date">Start Date <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="deadline">Deadline <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="status">Status <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="charge_fee">Charge Fee <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="payment_status">Payment Status <span class="sort-indicator">⇅</span></th>
+                            <th class="sortable" data-sort="payment_date">Payment Date <span class="sort-indicator">⇅</span></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -241,6 +248,11 @@
 
         let allTasks = [];
         let isEditing = false;
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc';
+
+        const DATE_COLUMNS = new Set(['start_date', 'deadline', 'payment_date']);
+        const NUMBER_COLUMNS = new Set(['charge_fee']);
 
         async function checkAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -254,7 +266,7 @@
             try {
                 const response = await fetch('/api/it-tasks');
                 allTasks = await response.json();
-                renderTasks(allTasks);
+                renderTasks(getFilteredAndSortedTasks());
             } catch (error) {
                 console.error('Error loading IT tasks:', error);
             }
@@ -269,6 +281,115 @@
             }
             return new Date(dateVal).toLocaleDateString();
         }
+
+        function parseDateValue(val) {
+            if (!val) return null;
+            const datePart = String(val).split('T')[0];
+            const parts = datePart.split('-');
+            if (parts.length === 3) {
+                return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])).getTime();
+            }
+            const parsed = new Date(val).getTime();
+            return Number.isNaN(parsed) ? null : parsed;
+        }
+
+        function compareTasks(a, b, key, direction) {
+            const multiplier = direction === 'asc' ? 1 : -1;
+
+            if (DATE_COLUMNS.has(key)) {
+                const timeA = parseDateValue(a[key]);
+                const timeB = parseDateValue(b[key]);
+
+                if (timeA === null && timeB === null) return 0;
+                if (timeA === null) return 1;
+                if (timeB === null) return -1;
+
+                return (timeA - timeB) * multiplier;
+            }
+
+            if (NUMBER_COLUMNS.has(key)) {
+                const numA = a[key] !== null && a[key] !== undefined ? Number(a[key]) : 0;
+                const numB = b[key] !== null && b[key] !== undefined ? Number(b[key]) : 0;
+                return (numA - numB) * multiplier;
+            }
+
+            const strA = String(a[key] ?? '').trim().toLowerCase();
+            const strB = String(b[key] ?? '').trim().toLowerCase();
+
+            if (!strA && !strB) return 0;
+            if (!strA) return 1;
+            if (!strB) return -1;
+
+            return strA.localeCompare(strB, undefined, { sensitivity: 'base' }) * multiplier;
+        }
+
+        function getFilteredAndSortedTasks() {
+            const term = document.getElementById('search-input').value.toLowerCase().trim();
+
+            let result = allTasks.filter(task => {
+                if (!term) return true;
+                const loc = (task.business_location || '').toLowerCase();
+                const cat = (task.task_category || '').toLowerCase();
+                const details = (task.task_details || '').toLowerCase();
+                const assigned = (task.assigned_to || '').toLowerCase();
+                const status = (task.status || '').toLowerCase();
+                const fee = String(task.charge_fee ?? '').toLowerCase();
+                const payStatus = (task.payment_status || '').toLowerCase();
+                const payDate = (task.payment_date || '').toLowerCase();
+
+                return (
+                    loc.includes(term) ||
+                    cat.includes(term) ||
+                    details.includes(term) ||
+                    assigned.includes(term) ||
+                    status.includes(term) ||
+                    fee.includes(term) ||
+                    payStatus.includes(term) ||
+                    payDate.includes(term)
+                );
+            });
+
+            if (currentSortColumn) {
+                result = [...result].sort((a, b) => compareTasks(a, b, currentSortColumn, currentSortDirection));
+            }
+
+            return result;
+        }
+
+        function updateSortHeaders() {
+            document.querySelectorAll('#task-table th.sortable').forEach(th => {
+                const col = th.getAttribute('data-sort');
+                const indicator = th.querySelector('.sort-indicator');
+                th.classList.remove('sorted-asc', 'sorted-desc');
+
+                if (col === currentSortColumn) {
+                    th.classList.add(currentSortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
+                    if (indicator) {
+                        indicator.textContent = currentSortDirection === 'asc' ? '▲' : '▼';
+                    }
+                } else if (indicator) {
+                    indicator.textContent = '⇅';
+                }
+            });
+        }
+
+        document.querySelectorAll('#task-table th.sortable').forEach(th => {
+            th.addEventListener('click', () => {
+                const col = th.getAttribute('data-sort');
+                if (currentSortColumn === col) {
+                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSortColumn = col;
+                    currentSortDirection = 'asc';
+                }
+                updateSortHeaders();
+                renderTasks(getFilteredAndSortedTasks());
+            });
+        });
+
+        document.getElementById('search-input').addEventListener('input', () => {
+            renderTasks(getFilteredAndSortedTasks());
+        });
 
         function renderTasks(tasks) {
             const tableBody = document.getElementById('task-table-body');
@@ -334,32 +455,6 @@
                 tableBody.appendChild(tr);
             });
         }
-
-        document.getElementById('search-input').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtered = allTasks.filter(task => {
-                const loc = (task.business_location || '').toLowerCase();
-                const cat = (task.task_category || '').toLowerCase();
-                const details = (task.task_details || '').toLowerCase();
-                const assigned = (task.assigned_to || '').toLowerCase();
-                const status = (task.status || '').toLowerCase();
-                const fee = String(task.charge_fee ?? '').toLowerCase();
-                const payStatus = (task.payment_status || '').toLowerCase();
-                const payDate = (task.payment_date || '').toLowerCase();
-
-                return (
-                    loc.includes(term) ||
-                    cat.includes(term) ||
-                    details.includes(term) ||
-                    assigned.includes(term) ||
-                    status.includes(term) ||
-                    fee.includes(term) ||
-                    payStatus.includes(term) ||
-                    payDate.includes(term)
-                );
-            });
-            renderTasks(filtered);
-        });
 
         document.getElementById('task-form').addEventListener('submit', async (e) => {
             e.preventDefault();
